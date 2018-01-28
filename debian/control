@@ -1,0 +1,29 @@
+Source: ibus-table-tlim2
+Section: utils
+Priority: optional
+Maintainer: You-Sheng Yang <vicamo@gmail.com>
+Build-Depends:
+ debhelper (>= 9),
+Build-Depends-Indep:
+ autotools-dev,
+ ibus-table (>= 1.1.0),
+ pkg-config
+Standards-Version: 3.9.5
+Homepage: http://github.com/vicamo/ibus-table-tlim2
+Vcs-Browser: http://github.com/vicamo/ibus-table-tlim2/tree
+Vcs-Git: git://github.com/vicamo/ibus-table-tlim2.git
+
+Package: ibus-table-tlim2
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ibus-table (>= 1.1.0.20090527)
+Description: TaiLo Input Method based on table engine of ibus
+ IBus-Table is the IM Engine framework for table-based input methods, such as
+ WuBi, ErBi, Cangjie and so on.
+ .
+ This package provide TLIM2 input method.
+ .
+ TLIM2 is an implementation of Tâi-uân Bân-lâm-gí Lô-má-jī Phing-im Hong-àn.
+ Check https://en.wikipedia.org/wiki/Taiwanese_Romanization_System for more
+ information.
