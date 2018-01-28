@@ -4,7 +4,7 @@ VERSION_1_0
 BEGIN_DEFINITION
 UUID = 2cfe53a9-1eaa-48c3-8082-62a30827070e
 SERIAL_NUMBER = 20150409
-ICON = /usr/share/scim/icons/tlim2.png
+ICON = @IBUS_ICON_DIR@/tlim2.png
 NAME = MOE_TLIM
 NAME.zh_CN = 臺灣閩南語漢字輸入法
 NAME.zh_HK = 臺灣閩南語漢字輸入法
