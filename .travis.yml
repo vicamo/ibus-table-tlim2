@@ -1,0 +1,49 @@
+sudo: required
+
+language: c
+
+services:
+- docker
+
+env:
+  global:
+  - DOCKER_EXEC="docker exec test_container"
+  matrix:
+  - SUITE=sid DISTRO=debian
+
+branches:
+  only:
+  - /^[^\/]+$/
+
+before_install:
+- docker pull ${DISTRO}:${SUITE}
+- |
+  docker run --detach --tty \
+    --name test_container \
+    --volume ${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}}:${TRAVIS_BUILD_DIR%${TRAVIS_REPO_SLUG}} \
+    --workdir ${TRAVIS_BUILD_DIR} \
+    ${DISTRO}:${SUITE} \
+    /bin/bash
+
+install:
+- ${DOCKER_EXEC} apt-get update --quiet --quiet
+- ${DOCKER_EXEC} apt-get install --no-install-recommends --yes
+    autoconf
+    automake
+    git
+    ibus-table
+    make
+    pkg-config
+    xz-utils
+
+script:
+- ${DOCKER_EXEC} ./autogen.sh
+- ${DOCKER_EXEC} make V=1
+- ${DOCKER_EXEC} make V=1 distcheck
+- ${DOCKER_EXEC} make V=1 clean
+- ${DOCKER_EXEC} make V=1 distclean
+- git clean -d -f -x
+
+notifications:
+  slack:
+    secure: YW7fczsfFFXf2bVijA/cZplZzcG45J/lzMKSk9a6P9dytSLSf0sskRTo0oC+ByVWS1WHZXeAroLJAFjefP0ZYTXtD8FjguEYJjbPDMgqsyS5yuMdENfSmxHcFMjawYsAGvNAzaucvmJWssLD3s7NZRU4CzF4zxiFRCXZqMRUbfeojT9gsJwLsqlTYqQ8gwufIniPmDT55jdeqs2Yf+UWopwkYZ2tGveq+VaptkA5jeNvsPK8MjI+YG56kWgtfVBmrG23t4FRbffvqvoyD+QIlBRK7mTgAxfSJkANUxvyZwbyK+spxZ39Z6lvvPSrkWUqKrOO0dHbS3e++2t2dCFnXR4TDHhiFFiungMJE0wcdvtBZ9uNHyqP9YnUaj1O50k1NGz1A4ARymu2gytB4cW8WwT5L8PqRW3JQrUPiQgaqXYtyht2mMWM71lRycFGDs+ufw+qRMIL0iILtxBy03RueymdBzSgf0BDG5S1gU9f2oHgPQhLpwoy3B9MoTpj7V2Q7UoX4tBkbvbqV7crJdbFfsuBAC7OH1er5tsRVtPNpJZVDhr2/oB1+g0e5zVKKHpcNAiQRZQadq4upPmC/Bx2NYO9lbfZCpd0SyMvtmnCqlu83Hb+P5qSUaTGQLyUM34mpKWfinPsT0T2GvqG4dB28cwt9A5tVG+4CsZTFTNpm/0=
