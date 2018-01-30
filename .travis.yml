@@ -7,6 +7,10 @@ services:
 
 env:
   global:
+  - BINTRAY_USER=vicamo
+  - BINTRAY_REPO=ppa
+  - BINTRAY_COMPONENT=contrib
+  - BINTRAY_DESC="Personal Package Archive for ibus-table-tlim2 package"
   - DOCKER_EXEC="docker exec test_container"
   matrix:
   - SUITE=sid DISTRO=debian
@@ -42,6 +46,32 @@ script:
 - git clean -d -f -x
 - ${DOCKER_EXEC} env WORKAROUND_BINTRAY_DEB_SUPPORT=1
     dpkg-buildpackage -i -us -uc -b -j$(nproc)
+
+before_deploy:
+- |
+  cat .bintray.json.in | \
+    sed -e "s#@BINTRAY_PACKAGE@#$(cat debian/control | grep ^Source: | awk '{print $2}')#g" \
+        -e "s#@BINTRAY_USER@#${BINTRAY_USER}#g" \
+        -e "s#@BINTRAY_REPO@#${BINTRAY_REPO}#g" \
+        -e "s#@BINTRAY_DESC@#${BINTRAY_DESC}#g" \
+        -e "s#@GITHUB_REPO@#${TRAVIS_REPO_SLUG}#g" \
+        -e "s#@BINTRAY_VERSION@#$(cat debian/changelog | head -n 1 | sed 's,.*(\(.*\)).*,\1,')#g" \
+        -e "s#@BINTRAY_RELEASE_DATE@#$(date -Iseconds --date="$(cat debian/changelog | grep -m 1 '^ -- ' | sed 's,^.*  ,,')")#g" \
+        -e "s#@BINTRAY_OUTDIR@#$(dirname ${TRAVIS_BUILD_DIR})#g" \
+        -e "s#@BINTRAY_POOLABBR@#$(cat debian/control | grep ^Source: | awk '{print $2}' | cut -c1)#g" \
+        -e "s#@BINTRAY_SUITE@#${SUITE}#g" \
+        -e "s#@BINTRAY_COMPONENT@#${BINTRAY_COMPONENT}#g" \
+        -e "s#@BINTRAY_ARCH@#all#g" | \
+    tee .bintray.json
+
+deploy:
+- provider: bintray
+  file: .bintray.json
+  user: vicamo
+  key:
+    secure: FfUmpbkiuIL7VJABVvYqgKj5xgegC5l2TWcUPmVfRavkEzh4DpeeZfKU179bLkzpop5eQGG7yFH8kbEav9EKD96h4M9T2u8OQSrJM4SOA9LnFwxGLdfJn4JUqFfDLYpwf5zktUkmM/g8dw35Y5wO114SUzashD8ObW/THZnuX5F32yq3P71Uhlj9pPwP7vy8czNX9LcYfUrAGIUdJ4SaoAXTXDiidxDaE+NH2Jwsl1uhLvHpcLiQfZ1G4BecnO5euK1rEU8Khdt/ogoHfxGUWa9aT8rfB4g6C+7/B4ERByKVbkyAeAf8LyqIUtIkejPxiViSyssLmsw4f3LAt74qEPgF73JLmJRgJ+S1GXwrWETc/d1gzO2rbw1urT/nbGyw15WUfNZEwrjuWqebHH+KWNgbJEBsrF2civ0I2u6+7QdTYwwpMrjasqDRbljxBFLBSKkpoSAhNG/0CplLIFGfV1mhWwm3TyySQeZywHntV5IJt1BQ9sGS3oTT/eG8jMziVRYOX/HzZpiTefFvhRt736bWjPM4yjOVAdeMJ40rsj5cmKVUkqiZnvb+hi6AY7hO6h4ZDHRKpWiGrTPNpGsZiD6/cQ5QWgiuwBkDQCd8bhFpNuNmT4DEhxLcK9KwSDtDCfWFrEvAUlsswVy3hY0YfbbKPbdcZnsmUn8ElKVDN64=
+  on:
+    tags: true
 
 notifications:
   slack:
