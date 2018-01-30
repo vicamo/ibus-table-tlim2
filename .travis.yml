@@ -13,7 +13,7 @@ env:
 
 branches:
   only:
-  - /^[^\/]+$/
+  - /^(debian\/)?[^\/]+$/
 
 before_install:
 - docker pull ${DISTRO}:${SUITE}
@@ -28,13 +28,10 @@ before_install:
 install:
 - ${DOCKER_EXEC} apt-get update --quiet --quiet
 - ${DOCKER_EXEC} apt-get install --no-install-recommends --yes
-    autoconf
-    automake
-    git
-    ibus-table
-    make
-    pkg-config
-    xz-utils
+    devscripts equivs
+- ${DOCKER_EXEC} mk-build-deps
+    --install --remove
+    --tool 'apt-get -o Debug::pkgProblemResolver=yes --no-install-recommends --yes --allow-unauthenticated'
 
 script:
 - ${DOCKER_EXEC} ./autogen.sh
@@ -43,6 +40,8 @@ script:
 - ${DOCKER_EXEC} make V=1 clean
 - ${DOCKER_EXEC} make V=1 distclean
 - git clean -d -f -x
+- ${DOCKER_EXEC} env WORKAROUND_BINTRAY_DEB_SUPPORT=1
+    dpkg-buildpackage -i -us -uc -b -j$(nproc)
 
 notifications:
   slack:

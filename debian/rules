@@ -10,3 +10,9 @@ include /usr/share/dpkg/default.mk
 # main packaging script based on dh7 syntax
 %:
 	dh $@ --with autoreconf
+
+ifneq ($(WORKAROUND_BINTRAY_DEB_SUPPORT),)
+override_dh_builddeb:
+	dh_builddeb -- -Zgzip
+
+endif
