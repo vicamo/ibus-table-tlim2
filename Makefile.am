@@ -58,6 +58,7 @@ EXTRA_DIST += ChangeLog
 BUILT_SOURCES += ChangeLog
 
 distclean-local:
+	rm -rf autom4te.cache build-aux
 	if test "$(srcdir)" = "."; then :; else \
 	  rm -f ChangeLog; \
 	fi
