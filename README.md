@@ -27,3 +27,6 @@ On debian you may use prebuilt binary deb available on [bintray](https://bintray
 $ echo "deb [trusted=yes] http://dl.bintray.com/vicamo/ppa sid contrib" | sudo tee /etc/apt/sources.list.d/vicamo-ppa.list
 $ sudo apt update && sudo apt install ibus-table-tlim2
 ```
+
+## Development
+Pull requests are welcome.
